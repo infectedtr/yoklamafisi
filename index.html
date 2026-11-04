@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <title>Şehit Yunus Çiçek MTAL - Haftalık Yoklama Fişi Otomasyonu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Yerel ve CDN Yedekli PDF.js -->
+  <script src="pdf.min.js"></script>
+  <script>
+    if (typeof pdfjsLib === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\\/script>');
+    }
+  </script>
   <script src="data.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -521,6 +528,7 @@
       <p>Haftalık A5 Günlük Öğrenci Yoklama Fişleri Yönetim ve Yazdırma Sistemi</p>
     </div>
     <div class="btn-group">
+      <button class="btn btn-outline" onclick="openPdfModal()" title="Yeni Dönem PDF Ders Programını Tarayıcıda Güncelle">📂 Ders Programı PDF Yükle</button>
       <button class="btn btn-outline" onclick="resetToDefaults()" title="Seçimleri fabrika ayarlarına döndür">🔄 Varsayılana Sıfırla</button>
       <button class="btn btn-primary" onclick="printActiveDay()">🖨️ Bu Günü Yazdır (A5)</button>
       <button class="btn btn-success" onclick="printAllWeek()">📑 Tüm Haftayı Yazdır (Tek Seferde)</button>
@@ -573,17 +581,27 @@
     ↑
   </button>
 
-  <!-- PDF Yükleme Modalı -->
+  <!-- PDF Yükleme Modalı (Doğrudan Tarayıcıda Çalışır) -->
   <div id="pdfModal" class="modal-backdrop no-print" style="display:none;">
     <div class="modal-box">
-      <h3 style="margin-bottom:12px;">Yeni Ders Programı PDF'i Yükle</h3>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px;">
-        Okul idaresinden gelen güncel <b>SINIFLAR DERS PROGRAMI.pdf</b> dosyasını seçin. Tüm sınıfların ders ve öğretmen dağılımları otomatik güncellenecektir.
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3>Ders Programı PDF'i Yükle (Tarayıcıda Çalışır)</h3>
+        <button class="btn-del-slip" onclick="closePdfModal()" style="font-size:1.2rem;">✕</button>
+      </div>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px; line-height:1.4;">
+        Okul idaresinden gelen güncel <b>SINIFLAR DERS PROGRAMI.pdf</b> dosyasını seçin.<br>
+        Herhangi bir sunucuya göndermeden, <b>doğrudan tarayıcınızın içinde</b> tüm sınıflar, dersler ve öğretmenler okunup anında güncellenecektir.
       </p>
       <input type="file" id="pdfFileInput" accept=".pdf" class="form-control" style="margin-bottom:16px;">
+      <div id="pdfProgressArea" style="display:none; margin-bottom:16px;">
+        <div style="font-size:0.85rem; font-weight:600; color:#2563eb; margin-bottom:6px;" id="pdfProgressText">Sayfalar işleniyor: 0 / 0</div>
+        <div style="width:100%; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+          <div id="pdfProgressBar" style="width:0%; height:100%; background:#2563eb; transition:width 0.15s;"></div>
+        </div>
+      </div>
       <div style="display:flex; justify-content:flex-end; gap:10px;">
         <button class="btn btn-outline" onclick="closePdfModal()">İptal</button>
-        <button class="btn btn-primary" id="btnUploadPdf" onclick="uploadPdf()">Yükle ve Güncelle</button>
+        <button class="btn btn-primary" id="btnUploadPdf" onclick="uploadPdfClientSide()">PDF'i Tara ve Güncelle</button>
       </div>
     </div>
   </div>
@@ -705,9 +723,20 @@
       document.getElementById('weekDate').value = getCurrentMonday();
 
       try {
-        // 1. PDF veri setini data.js'den yükle
-        appData.pdf_data = typeof PDF_CLASSES_DATA !== 'undefined' ? PDF_CLASSES_DATA : {};
-        appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : [];
+        // 1. PDF veri setini yükle (Önce localStorage kontrol et, yoksa data.js)
+        const customPdfData = localStorage.getItem('yoklama_pdf_data');
+        if (customPdfData) {
+          try {
+            appData.pdf_data = JSON.parse(customPdfData);
+            appData.pdf_classes = Object.keys(appData.pdf_data);
+          } catch(e) {
+            appData.pdf_data = typeof PDF_CLASSES_DATA !== 'undefined' ? PDF_CLASSES_DATA : {};
+            appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : [];
+          }
+        } else {
+          appData.pdf_data = typeof PDF_CLASSES_DATA !== 'undefined' ? PDF_CLASSES_DATA : {};
+          appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : [];
+        }
 
         // 2. Kullanıcının yerel hafızasındaki (localStorage) seçimleri yükle
         const savedSlips = localStorage.getItem('yoklama_slips');
@@ -961,37 +990,159 @@
     }
 
     // Modal: PDF Yükle
-    function openPdfModal() { document.getElementById('pdfModal').style.display = 'flex'; }
+    function openPdfModal() { 
+      document.getElementById('pdfModal').style.display = 'flex';
+      document.getElementById('pdfProgressArea').style.display = 'none';
+      document.getElementById('pdfProgressBar').style.width = '0%';
+      document.getElementById('btnUploadPdf').disabled = false;
+      document.getElementById('btnUploadPdf').innerText = "PDF'i Tara ve Güncelle";
+    }
     function closePdfModal() { document.getElementById('pdfModal').style.display = 'none'; }
 
-    async function uploadPdf() {
+    // Tamamen Tarayıcı Üzerinde (Client-Side) PDF Parser
+    async function uploadPdfClientSide() {
       const fileInput = document.getElementById('pdfFileInput');
       if (!fileInput.files.length) {
         alert('Lütfen bir PDF dosyası seçin!');
         return;
       }
-      const formData = new FormData();
-      formData.append('pdf_file', fileInput.files[0]);
 
+      if (typeof pdfjsLib === 'undefined') {
+        alert('PDF okuma kütüphanesi yüklenemedi. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.');
+        return;
+      }
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
+
+      const file = fileInput.files[0];
       const btn = document.getElementById('btnUploadPdf');
+      const progressArea = document.getElementById('pdfProgressArea');
+      const progressText = document.getElementById('pdfProgressText');
+      const progressBar = document.getElementById('pdfProgressBar');
+
       btn.disabled = true;
-      btn.innerText = 'İşleniyor...';
+      btn.innerText = 'Taranıyor...';
+      progressArea.style.display = 'block';
 
       try {
-        const res = await fetch('/api/upload_pdf', { method: 'POST', body: formData });
-        const result = await res.json();
-        if (result.success) {
-          alert('✓ Ders Programı Başarıyla Güncellendi!\n' + result.message);
-          closePdfModal();
-          location.reload();
-        } else {
-          alert('Hata: ' + result.error);
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+
+        const newPdfData = {};
+        const colCenters = [112, 154, 196, 238, 280, 322, 364, 406, 448, 490, 532];
+
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+          progressText.innerText = `Sayfalar işleniyor: ${pageNum} / ${totalPages}`;
+          progressBar.style.width = `${Math.round((pageNum / totalPages) * 100)}%`;
+
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          const viewport = page.getViewport({ scale: 1.0 });
+
+          // Her bir span'ın (x, y) koordinatlarını al (PDF coordinate: 0 at bottom)
+          const items = textContent.items.map(it => {
+            const tx = it.transform[4];
+            const ty = viewport.height - it.transform[5]; // Üstten alta dönüştür
+            return { x: tx, y: ty, text: it.str.trim() };
+          }).filter(it => it.text.length > 0);
+
+          // 1. Sınıf Kodunu Bul
+          let classCode = null;
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].text === ':' && i > 0 && items[i-1].text.includes('Sınıf')) {
+              if (i + 1 < items.length) {
+                classCode = items[i+1].text.replace(/^:/, '').trim();
+                break;
+              }
+            } else if (items[i].text.startsWith(':') && items[i].text.length > 1 && i < 15) {
+              classCode = items[i].text.replace(/^:/, '').trim();
+              break;
+            }
+          }
+          if (!classCode) classCode = `Sinif_${pageNum}`;
+
+          // 2. Alt Tablodaki Ders Kodlarını & Öğretmenleri (Legend) Çöz
+          const legend = {};
+          // y > 380 olan satırlar legend tablosudur
+          const legendRows = {};
+          items.filter(it => it.y > 380).forEach(it => {
+            const ry = Math.round(it.y / 12) * 12;
+            if (!legendRows[ry]) legendRows[ry] = [];
+            legendRows[ry].push(it);
+          });
+
+          Object.values(legendRows).forEach(rowItems => {
+            rowItems.sort((a, b) => a.x - b.x);
+            // x ~ 78 ders kodu, x ~ 125 ders adı, x ~ 308 öğretmen adı
+            const kodItem = rowItems.find(it => it.x >= 70 && it.x <= 110 && !/^\d+$/.test(it.text));
+            const adItems = rowItems.filter(it => it.x >= 120 && it.x <= 235);
+            const ogrItems = rowItems.filter(it => it.x >= 300);
+
+            if (kodItem) {
+              legend[kodItem.text] = {
+                ad: adItems.map(a => a.text).join(' '),
+                ogretmen: ogrItems.map(o => o.text).join(' ')
+              };
+            }
+          });
+
+          // 3. Günlere göre ders saatlerini çıkar (Pazartesi, Salı, Çarşamba, Perşembe, Cuma)
+          const daysMap = {
+            'Pazartesi': 138,
+            'Salı': 176,
+            'Çarşamba': 214,
+            'Perşembe': 252,
+            'Cuma': 310
+          };
+          const gunler = {};
+
+          Object.entries(daysMap).forEach(([gunName, targetY]) => {
+            // targetY'ye yakın olan ders kodu satırını bul (targetY - 14 civarı)
+            const rowY = targetY - 14;
+            const dersKodSpans = items.filter(it => Math.abs(it.y - rowY) <= 8 && it.x > 95);
+            const ogrSpans = items.filter(it => Math.abs(it.y - (rowY + 12)) <= 8 && it.x > 95);
+
+            const daySlots = [];
+            for (let c = 0; c < 11; c++) {
+              const cx = colCenters[c];
+              const span = dersKodSpans.find(it => Math.abs(it.x - cx) <= 22);
+              const ogrSpan = ogrSpans.find(it => Math.abs(it.x - cx) <= 22);
+
+              if (span && span.text) {
+                const kod = span.text;
+                const ad = (legend[kod] && legend[kod].ad) ? legend[kod].ad : kod;
+                const ogr = (legend[kod] && legend[kod].ogretmen) ? legend[kod].ogretmen : (ogrSpan ? ogrSpan.text : '');
+                daySlots.push({ kod, ad, ogretmen: ogr });
+              } else {
+                daySlots.push({ kod: '', ad: '', ogretmen: '' });
+              }
+            }
+            gunler[gunName] = daySlots;
+          });
+
+          newPdfData[classCode] = {
+            sinif_kodu: classCode,
+            gunler: gunler
+          };
         }
+
+        // Başarılı! Tarayıcı hafızasına ve uygulamaya kaydet
+        appData.pdf_data = newPdfData;
+        appData.pdf_classes = Object.keys(newPdfData);
+        localStorage.setItem('yoklama_pdf_data', JSON.stringify(newPdfData));
+
+        alert(`✓ Başarılı! ${Object.keys(newPdfData).length} sınıfın ders programı doğrudan tarayıcınızda okundu ve güncellendi.`);
+        closePdfModal();
+        renderDaysTabs();
+        renderCurrentDay();
+
       } catch (err) {
-        alert('Sunucu hatası: ' + err.message);
+        console.error("PDF okuma hatası:", err);
+        alert('PDF dosyası okunurken hata oluştu: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Yükle ve Güncelle';
+        btn.innerText = "PDF'i Tara ve Güncelle";
       }
     }
 
