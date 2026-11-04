@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Şehit Yunus Çiçek MTAL - Haftalık Yoklama Fişi Otomasyonu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="data.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    @media screen {
+      .top-navbar {
+        background: linear-gradient(135deg, #1e3a8a, #0f172a);
+        color: white;
+        padding: 16px 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .brand-title h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+      .brand-title p {
+        font-size: 0.82rem;
+        color: #94a3b8;
+        margin-top: 2px;
+      }
+
+      .main-container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+      }
+
+      .control-panel {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        align-items: center;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .form-control {
+        width: 100%;
+        padding: 9px 12px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        font-size: 0.95rem;
+        background: #f8fafc;
+        transition: all 0.2s;
+      }
+      .form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 9px 16px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+      }
+      .btn-primary { background: #2563eb; color: white; }
+      .btn-primary:hover { background: #1d4ed8; }
+      .btn-success { background: #059669; color: white; }
+      .btn-success:hover { background: #047857; }
+      .btn-secondary { background: #475569; color: white; }
+      .btn-secondary:hover { background: #334155; }
+      .btn-outline {
+        background: white;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+      }
+      .btn-outline:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+      /* Days Tabs */
+      .days-tabs {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 20px;
+        overflow-x: auto;
+      }
+      .tab-btn {
+        padding: 10px 20px;
+        border: none;
+        background: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #64748b;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+      .tab-btn.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+      }
+      .tab-badge {
+        background: #e2e8f0;
+        color: #475569;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 700;
+      }
+      .tab-btn.active .tab-badge {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      /* Slips Grid */
+      .slips-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .slip-card-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+        position: relative;
+      }
+      .slip-card-item:hover { border-color: #94a3b8; }
+      .slip-card-item.selected {
+        background: #eff6ff;
+        border-color: #3b82f6;
+      }
+      .slip-card-item input[type="checkbox"] {
+        margin-top: 3px;
+        width: 18px;
+        height: 18px;
+        accent-color: #2563eb;
+        cursor: pointer;
+      }
+      .slip-item-info { flex: 1; min-width: 0; }
+      .slip-item-title {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .slip-item-sub {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 3px;
+        line-height: 1.3;
+      }
+      .btn-del-slip {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+      }
+      .btn-del-slip:hover { color: #dc2626; background: #fee2e2; }
+
+      .preview-wrapper {
+        margin-top: 20px;
+        background: #cbd5e1;
+        padding: 30px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
+      /* Filter Pill Buttons */
+      .filter-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+        align-items: center;
+      }
+      .filter-pill {
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border-radius: 20px;
+        border: 1px solid #cbd5e1;
+        background: white;
+        cursor: pointer;
+        color: #475569;
+        transition: all 0.15s;
+      }
+      .filter-pill:hover { border-color: #2563eb; color: #2563eb; }
+      .filter-pill.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+
+      .classes-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 8px;
+        max-height: 380px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
+      .picker-btn {
+        padding: 10px 8px;
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .picker-btn:hover {
+        border-color: #2563eb;
+        background: #eff6ff;
+        color: #1e40af;
+      }
+      .picker-btn .badge-prog {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #64748b;
+      }
+
+      /* Sayfanın Üstüne Dön Butonu */
+      #btnScrollTop {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #2563eb;
+        color: white;
+        border: none;
+        box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        font-weight: bold;
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(10px);
+      }
+      #btnScrollTop.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      #btnScrollTop:hover {
+        background: #1d4ed8;
+        box-shadow: 0 6px 18px rgba(29,78,216,0.5);
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Print & A5 Physical Page Style */
+    @page {
+      size: A5 portrait;
+      margin: 6mm 6mm 6mm 6mm;
+    }
+
+    .a5-page {
+      background: white;
+      width: 148mm;
+      height: 204mm;
+      max-height: 205mm;
+      padding: 2mm 3mm 4mm 3mm;
+      margin: 0 auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      break-after: page;
+      overflow: hidden;
+    }
+
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .main-container { margin: 0; padding: 0; max-width: none; }
+      .preview-wrapper { background: none; padding: 0; gap: 0; }
+      .a5-page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+    }
+
+    /* Orijinal Excel Fişi Tasarımı */
+    .slip-header {
+      text-align: center;
+      margin-bottom: 2mm;
+    }
+    .slip-header .gov-tc {
+      font-size: 9.5pt;
+      font-weight: bold;
+      line-height: 1.15;
+    }
+    .slip-header .gov-valilik {
+      font-size: 9.5pt;
+      font-weight: bold;
+      line-height: 1.15;
+    }
+    .slip-header .school-name {
+      font-size: 8pt;
+      font-weight: bold;
+      line-height: 1.15;
+    }
+    .slip-header .doc-title {
+      font-size: 10pt;
+      font-weight: bold;
+      margin-top: 1.5mm;
+      letter-spacing: 0.5px;
+    }
+
+    .slip-subinfo {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 7.5pt;
+      font-weight: bold;
+      margin-bottom: 1.5mm;
+      line-height: 1.25;
+    }
+    .subinfo-left {
+      flex: 1;
+      padding-right: 4mm;
+    }
+    .subinfo-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* 12 Ders Tablosu */
+    .slip-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 6.5pt;
+    }
+    .slip-table th, .slip-table td {
+      border: 0.6pt solid #000;
+      text-align: center;
+      vertical-align: middle;
+      padding: 0;
+      word-wrap: break-word;
+      overflow: hidden;
+    }
+
+    .row-lesson-nums th {
+      height: 6mm;
+      font-size: 6.5pt;
+      font-weight: bold;
+      background: #fafafa;
+    }
+
+    .row-lesson-names td {
+      height: 12.5mm;
+      font-size: 5.5pt;
+      font-weight: bold;
+      line-height: 1.1;
+      padding: 1px 2px;
+      vertical-align: middle;
+    }
+
+    /* Yoklama Alanı (Ders ve Öğretmen Arasındaki Boş Alan) */
+    .row-absence-cell {
+      height: 100mm;
+      vertical-align: top;
+      background: #fff;
+    }
+
+    /* Öğretmen İsim / İmza Satırı (Aşağıdan yukarıya, alta ve sağa yanaşık) */
+    .row-teachers td {
+      height: 28mm;
+      max-height: 28mm;
+      padding: 1.5mm 1mm 1.5mm 1mm;
+      background: #fafafa;
+      text-align: right;
+      vertical-align: bottom;
+      overflow: hidden;
+      position: relative;
+    }
+    .teacher-cell-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: flex-end;
+      height: 100%;
+      width: 100%;
+    }
+    .teacher-rotated-text {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      display: inline-block;
+      white-space: normal;
+      word-break: break-word;
+      font-size: 5.5pt;
+      font-weight: bold;
+      letter-spacing: 0.1px;
+      line-height: 1.05;
+      max-height: 25mm;
+      max-width: 10.5mm;
+      text-align: left; /* Ters çevrildiği için kutunun altına yaslanır */
+      margin: 0;
+    }
+
+    .slip-footer {
+      text-align: center;
+      font-size: 7.5pt;
+      font-weight: bold;
+      margin-top: 2.5mm;
+      margin-bottom: 1mm;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+    .modal-box {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 680px;
+      width: 92%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen Header & Controls -->
+  <header class="top-navbar no-print">
+    <div class="brand-title">
+      <h1>Şehit Yunus Çiçek MTAL — Yoklama Fişi Otomasyonu</h1>
+      <p>Haftalık A5 Günlük Öğrenci Yoklama Fişleri Yönetim ve Yazdırma Sistemi</p>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="resetToDefaults()" title="Seçimleri fabrika ayarlarına döndür">🔄 Varsayılana Sıfırla</button>
+      <button class="btn btn-primary" onclick="printActiveDay()">🖨️ Bu Günü Yazdır (A5)</button>
+      <button class="btn btn-success" onclick="printAllWeek()">📑 Tüm Haftayı Yazdır (Tek Seferde)</button>
+    </div>
+  </header>
+
+  <main class="main-container no-print">
+    <!-- Kontrol Paneli -->
+    <div class="card control-panel">
+      <div class="form-group">
+        <label for="weekDate">📅 Hafta Başlangıç Tarihi (Pazartesi)</label>
+        <input type="date" id="weekDate" class="form-control" onchange="onDateChanged()">
+      </div>
+      <div class="form-group">
+        <label>⚡ Kalıcı Hafıza</label>
+        <p style="font-size:0.8rem; color:#64748b; line-height:1.4;">
+          Yaptığınız tüm sınıf seçimleri ve hafta tarihi tarayıcınızda ve sunucuda otomatik kaydedilir.
+        </p>
+      </div>
+      <div class="form-group" style="text-align: right;">
+        <button class="btn btn-success" onclick="saveConfiguration(true)">💾 Seçimleri Kaydet</button>
+      </div>
+    </div>
+
+    <!-- Gün Sekmeleri ve Sınıf Seçimleri -->
+    <div class="card">
+      <div class="days-tabs" id="daysTabs"></div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h3 id="currentDayTitle" style="font-size:1.05rem; font-weight:700;">Günün Fişleri</h3>
+          <span id="currentDaySubtitle" style="font-size:0.8rem; color:#64748b;">Seçili sınıfların fişleri yazdırılacaktır</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline" style="font-size:0.8rem; padding:5px 12px;" onclick="selectAllCurrentDay(true)">Tümünü Seç</button>
+          <button class="btn btn-outline" style="font-size:0.8rem; padding:5px 12px;" onclick="selectAllCurrentDay(false)">Hiçbiri</button>
+          <button class="btn btn-primary" style="font-size:0.8rem; padding:5px 14px;" onclick="openAddClassModal()">➕ Programdan Sınıf Ekle</button>
+        </div>
+      </div>
+
+      <div class="slips-grid" id="slipsGrid"></div>
+    </div>
+  </main>
+
+  <!-- Fiş Önizleme Alanı -->
+  <div class="preview-wrapper" id="previewContainer"></div>
+
+  <!-- Sayfanın Başına Dön Oku -->
+  <button id="btnScrollTop" class="no-print" onclick="scrollToTop()" title="Sayfanın Başına Dön">
+    ↑
+  </button>
+
+  <!-- PDF Yükleme Modalı -->
+  <div id="pdfModal" class="modal-backdrop no-print" style="display:none;">
+    <div class="modal-box">
+      <h3 style="margin-bottom:12px;">Yeni Ders Programı PDF'i Yükle</h3>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px;">
+        Okul idaresinden gelen güncel <b>SINIFLAR DERS PROGRAMI.pdf</b> dosyasını seçin. Tüm sınıfların ders ve öğretmen dağılımları otomatik güncellenecektir.
+      </p>
+      <input type="file" id="pdfFileInput" accept=".pdf" class="form-control" style="margin-bottom:16px;">
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn btn-outline" onclick="closePdfModal()">İptal</button>
+        <button class="btn btn-primary" id="btnUploadPdf" onclick="uploadPdf()">Yükle ve Güncelle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gelişmiş Sınıf Ekleme Modalı (Kategorize: AMP / ATP ve 9, 10, 11, 12) -->
+  <div id="addClassModal" class="modal-backdrop no-print" style="display:none;">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 id="addClassModalTitle">Güne Sınıf Ekle</h3>
+        <button class="btn-del-slip" onclick="closeAddClassModal()" style="font-size:1.2rem;">✕</button>
+      </div>
+      <p style="font-size:0.82rem; color:#64748b; margin-bottom:14px;">
+        Aşağıdan <b>Program Türü</b> (AMP / ATP) ve <b>Sınıf Seviyesi</b> (9, 10, 11, 12) seçerek istediğiniz sınıfa tıklayın:
+      </p>
+
+      <!-- Program Filtresi -->
+      <div class="filter-pills" id="progFilterContainer">
+        <span style="font-size:0.8rem; font-weight:700; color:#475569; margin-right:4px;">Program:</span>
+        <button class="filter-pill active" onclick="setProgFilter('ALL')">Tümü</button>
+        <button class="filter-pill" onclick="setProgFilter('AMP')">AMP (Meslek)</button>
+        <button class="filter-pill" onclick="setProgFilter('ATP')">ATP (Teknik)</button>
+      </div>
+
+      <!-- Seviye Filtresi -->
+      <div class="filter-pills" id="gradeFilterContainer">
+        <span style="font-size:0.8rem; font-weight:700; color:#475569; margin-right:4px;">Seviye:</span>
+        <button class="filter-pill active" onclick="setGradeFilter('ALL')">Tümü</button>
+        <button class="filter-pill" onclick="setGradeFilter('9')">9. Sınıf</button>
+        <button class="filter-pill" onclick="setGradeFilter('10')">10. Sınıf</button>
+        <button class="filter-pill" onclick="setGradeFilter('11')">11. Sınıf</button>
+        <button class="filter-pill" onclick="setGradeFilter('12')">12. Sınıf</button>
+      </div>
+
+      <!-- Sınıf Seçim Butonları -->
+      <div class="classes-picker-grid" id="pickerGrid"></div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <span id="pickerCountLabel" style="font-size:0.8rem; color:#64748b;"></span>
+        <button class="btn btn-outline" onclick="closeAddClassModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DAYS = ['PAZARTESİ', 'SALI', 'ÇARŞAMBA', 'PERŞEMBE', 'CUMA'];
+    const DAY_OFFSET = { 'PAZARTESİ': 0, 'SALI': 1, 'ÇARŞAMBA': 2, 'PERŞEMBE': 3, 'CUMA': 4 };
+    const TR_DAY_MAP = { 'PAZARTESİ': 'Pazartesi', 'SALI': 'Salı', 'ÇARŞAMBA': 'Çarşamba', 'PERŞEMBE': 'Perşembe', 'CUMA': 'Cuma' };
+    const ROMAN_NUMS = ['I.', 'II.', 'III.', 'IV.', 'V.', 'VI.', 'VII.', 'VIII.', 'IX.', 'X.', 'XI.', 'XII.'];
+
+    let appData = {
+      slips: {},
+      pdf_classes: [],
+      pdf_data: {},
+      config: {}
+    };
+
+    let activeDay = 'PAZARTESİ';
+    let currentProgFilter = 'ALL';
+    let currentGradeFilter = 'ALL';
+
+    // Alan - Dal Eşleştirmeleri
+    const ALAN_MAP = {
+      'A': { alan: 'MAKİNE VE TASARIM TEKNOLOJİSİ ALANI', dal: 'Makine Bakım Onarım' },
+      'E': { alan: 'ELEKTRİK-ELEKTRONİK TEKNOLOJİSİ ALANI', dal: 'Elektrik Tesisatları ve Dağıtımı' },
+      'G': { alan: 'MOBİLYA VE İÇ MEKÂN TASARIMI ALANI', dal: 'Mobilya Üretim Teknolojisi' },
+      'K': { alan: 'MOTORLU ARAÇLAR TEKNOLOJİSİ ALANI', dal: 'Otomotiv Elektromekanik' },
+      'Z': { alan: 'BİLİŞİM TEKNOLOJİLERİ ALANI', dal: 'Yazılım Geliştirme' },
+      'C': { alan: 'METAL TEKNOLOJİSİ ALANI', dal: 'Metal Doğrama' },
+    };
+
+    // Sınıf Kodu Analiz Fonksiyonu: Program (AMP/ATP) ve Seviye (9,10,11,12)
+    function analyzeClass(code) {
+      const u = code.toUpperCase();
+      let prog = 'AMP';
+      if (u.startsWith('ATP') || (u.startsWith('A') && !u.startsWith('AMP'))) {
+        prog = 'ATP';
+      }
+
+      let grade = '9';
+      const m = u.match(/(?:AMP|ATP|A)?(9|10|11|12)/);
+      if (m) {
+        grade = m[1];
+      } else if (u.includes('UYUM') || u.includes('ÖZ')) {
+        grade = 'Özel';
+      }
+
+      return { prog, grade };
+    }
+
+    function generateTitleAndDal(code) {
+      const { prog, grade } = analyzeClass(code);
+      let cleanSube = code.replace(/^(?:AMP|ATP|A)?(?:9|10|11|12)[\-_]?/i, '');
+      if (!cleanSube) cleanSube = code;
+
+      const firstChar = cleanSube.charAt(0).toUpperCase();
+      const meta = ALAN_MAP[firstChar] || { alan: 'MESLEK VE TEKNİK ALANI', dal: 'Genel Dal' };
+
+      const fullTitle = `Sınıf: ${prog} - ${grade}. Sınıf / ${cleanSube} Şubesi ${meta.alan}`;
+      const dalTitle = `Dalı: ${meta.dal}`;
+      return { fullTitle, dalTitle, sube: cleanSube };
+    }
+
+    // İçinde bulunulan haftanın Pazartesi gününü yerel saatle hesapla (YYYY-MM-DD)
+    function getCurrentMonday() {
+      const now = new Date();
+      const day = now.getDay(); // 0: Pazar, 1: Pazartesi, ..., 6: Cumartesi
+      // Pazartesiye olan gün farkı (Pazar günü için -6, diğer günler 1 - day)
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+      
+      const year = monday.getFullYear();
+      const month = String(monday.getMonth() + 1).padStart(2, '0');
+      const date = String(monday.getDate()).padStart(2, '0');
+      return `${year}-${month}-${date}`;
+    }
+
+    async function init() {
+      // Her zaman güncel haftanın Pazartesi gününü varsayılan olarak seç
+      document.getElementById('weekDate').value = getCurrentMonday();
+
+      try {
+        // 1. PDF veri setini data.js'den yükle
+        appData.pdf_data = typeof PDF_CLASSES_DATA !== 'undefined' ? PDF_CLASSES_DATA : {};
+        appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : [];
+
+        // 2. Kullanıcının yerel hafızasındaki (localStorage) seçimleri yükle
+        const savedSlips = localStorage.getItem('yoklama_slips');
+        if (savedSlips) {
+          try {
+            appData.slips = JSON.parse(savedSlips);
+          } catch(e) {
+            console.warn("Kayıtlı fiş verisi okunamadı, varsayılan yükleniyor:", e);
+            appData.slips = JSON.parse(JSON.stringify(DEFAULT_SLIPS));
+          }
+        } else if (typeof DEFAULT_SLIPS !== 'undefined') {
+          appData.slips = JSON.parse(JSON.stringify(DEFAULT_SLIPS));
+        } else {
+          appData.slips = {};
+        }
+
+        renderDaysTabs();
+        renderCurrentDay();
+      } catch (err) {
+        console.error("Veri yüklenemedi:", err);
+      }
+    }
+
+    function resetToDefaults() {
+      if (confirm("Tüm sınıf ve gün seçimlerini orijinal varsayılan ayarlara sıfırlamak istiyor musunuz?")) {
+        localStorage.removeItem('yoklama_slips');
+        if (typeof DEFAULT_SLIPS !== 'undefined') {
+          appData.slips = JSON.parse(JSON.stringify(DEFAULT_SLIPS));
+        }
+        renderDaysTabs();
+        renderCurrentDay();
+        alert("✓ Seçimler başarıyla varsayılana sıfırlandı.");
+      }
+    }
+
+    function renderDaysTabs() {
+      const container = document.getElementById('daysTabs');
+      container.innerHTML = '';
+      DAYS.forEach(day => {
+        const list = appData.slips[day] || [];
+        const count = list.filter(s => s.selected !== false).length;
+        const total = list.length;
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn' + (day === activeDay ? ' active' : '');
+        btn.innerHTML = `${day} <span class="tab-badge">${count}/${total}</span>`;
+        btn.onclick = () => {
+          activeDay = day;
+          renderDaysTabs();
+          renderCurrentDay();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderCurrentDay() {
+      document.getElementById('currentDayTitle').innerText = `${activeDay} Günü Fiş Listesi`;
+      const grid = document.getElementById('slipsGrid');
+      grid.innerHTML = '';
+
+      const list = appData.slips[activeDay] || [];
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; padding: 30px; text-align: center; color: #64748b; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+            Bu gün için henüz eklenmiş fiş yok.<br>
+            Yukarıdaki <b>"➕ Programdan Sınıf Ekle"</b> butonuna basarak ders programından sınıfları ekleyebilirsiniz.
+          </div>
+        `;
+      } else {
+        list.forEach((item, index) => {
+          const isSel = item.selected !== false;
+          const card = document.createElement('div');
+          card.className = 'slip-card-item' + (isSel ? ' selected' : '');
+          card.innerHTML = `
+            <input type="checkbox" ${isSel ? 'checked' : ''} onchange="toggleSlipSelection(${index}, this.checked)">
+            <div class="slip-item-info">
+              <div class="slip-item-title" title="${item.sinif}">${item.sinif}</div>
+              <div class="slip-item-sub">${item.dal || ''} • <b>${item.mevcut || 'Mevcut: -'}</b></div>
+            </div>
+            <button class="btn-del-slip" title="Bu fişi kaldır" onclick="removeSlip(${index}); event.stopPropagation();">🗑️</button>
+          `;
+          card.onclick = (e) => {
+            if (e.target.tagName !== 'INPUT' && !e.target.closest('button')) {
+              const chk = card.querySelector('input');
+              chk.checked = !chk.checked;
+              toggleSlipSelection(index, chk.checked);
+            }
+          };
+          grid.appendChild(card);
+        });
+      }
+
+      renderPreview(activeDay);
+    }
+
+    function toggleSlipSelection(index, isChecked) {
+      if (appData.slips[activeDay] && appData.slips[activeDay][index]) {
+        appData.slips[activeDay][index].selected = isChecked;
+        renderDaysTabs();
+        renderCurrentDay();
+        autoSave();
+      }
+    }
+
+    function selectAllCurrentDay(val) {
+      (appData.slips[activeDay] || []).forEach(s => s.selected = val);
+      renderDaysTabs();
+      renderCurrentDay();
+      autoSave();
+    }
+
+    function removeSlip(index) {
+      if (confirm('Bu fişi bu günün listesinden kaldırmak istediğinize emin misiniz?')) {
+        appData.slips[activeDay].splice(index, 1);
+        renderDaysTabs();
+        renderCurrentDay();
+        autoSave();
+      }
+    }
+
+    function getFormattedDateForDay(dayName) {
+      const baseStr = document.getElementById('weekDate').value;
+      if (!baseStr) return '';
+      const base = new Date(baseStr);
+      const offset = DAY_OFFSET[dayName] || 0;
+      base.setDate(base.getDate() + offset);
+      const day = String(base.getDate()).padStart(2, '0');
+      const month = String(base.getMonth() + 1).padStart(2, '0');
+      const year = base.getFullYear();
+      return `${day}.${month}.${year}`;
+    }
+
+    function onDateChanged() {
+      renderPreview(activeDay);
+      autoSave();
+    }
+
+    // A5 Fiş HTML Üretici
+    function generateSlipHTML(slipData, dayName) {
+      const dateText = getFormattedDateForDay(dayName);
+      
+      let lessonNumsTh = '';
+      let lessonNamesTd = '';
+      let teachersTd = '';
+
+      for (let c = 0; c < 12; c++) {
+        const num = ROMAN_NUMS[c] || (c + 1) + '.';
+        const lesson = (slipData.dersler && slipData.dersler[c]) ? slipData.dersler[c].replace(/\n/g, '<br>') : '';
+        const teacherRaw = (slipData.ogretmenler && slipData.ogretmenler[c]) ? slipData.ogretmenler[c].trim() : '';
+        let teacher = '';
+        if (teacherRaw) {
+          // İki öğretmen varsa (virgülle ayrılmışsa) alt satıra geçsin
+          let formattedName = teacherRaw.replace(/,\s*/g, '<br>');
+          // Çok uzun unvan parantezleri varsa alt satıra geçsin
+          formattedName = formattedName.replace(/\(([^)]+)\)/g, '<br>($1)');
+          
+          teacher = `
+            <div class="teacher-cell-container">
+              <span class="teacher-rotated-text">${formattedName}</span>
+            </div>
+          `;
+        } else {
+          teacher = ``;
+        }
+
+        lessonNumsTh += `<th>${num}<br>Ders</th>`;
+        lessonNamesTd += `<td>${lesson}</td>`;
+        teachersTd += `<td>${teacher}</td>`;
+      }
+
+      // Tek blok yoklama sütunları (Ders ile Öğretmen arasında yatay çizgi yok, dikey sütunlar korunur)
+      let absenceColumns = '';
+      for (let c = 0; c < 12; c++) {
+        absenceColumns += `<td class="row-absence-cell"></td>`;
+      }
+
+      return `
+      <div class="a5-page">
+        <div>
+          <div class="slip-header">
+            <div class="gov-tc">T.C.</div>
+            <div class="gov-valilik">AFYONKARAHİSAR VALİLİĞİ</div>
+            <div class="school-name">Merkez / Afyonkarahisar Şehit Yunus Çiçek Mesleki Ve Teknik Anadolu Lisesi Müdürlüğü</div>
+            <div class="doc-title">ÖĞRENCİ GÜNLÜK YOKLAMA FİŞİ</div>
+          </div>
+
+          <div class="slip-subinfo">
+            <div class="subinfo-left">
+              <div>${slipData.sinif}</div>
+              <div>${slipData.dal || ''}</div>
+            </div>
+            <div class="subinfo-right">
+              <div>${dateText}</div>
+              <div>${slipData.mevcut || ''}</div>
+            </div>
+          </div>
+
+          <table class="slip-table">
+            <thead>
+              <tr class="row-lesson-nums">${lessonNumsTh}</tr>
+              <tr class="row-lesson-names">${lessonNamesTd}</tr>
+            </thead>
+            <tbody>
+              <tr>${absenceColumns}</tr>
+              <tr class="row-teachers">${teachersTd}</tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="slip-footer">
+          Bu kağıdı son derse giren öğretmen idareye verecektir.
+        </div>
+      </div>
+      `;
+    }
+
+    function renderPreview(targetDay) {
+      const container = document.getElementById('previewContainer');
+      container.innerHTML = '';
+
+      if (targetDay === 'ALL') {
+        DAYS.forEach(day => {
+          const list = (appData.slips[day] || []).filter(s => s.selected !== false);
+          list.forEach(slip => {
+            container.innerHTML += generateSlipHTML(slip, day);
+          });
+        });
+      } else {
+        const list = (appData.slips[targetDay] || []).filter(s => s.selected !== false);
+        if (list.length === 0) {
+          container.innerHTML = '<div style="background:white; padding:40px; border-radius:8px; color:#64748b; font-weight:600;">Bu gün için seçili yoklama fişi bulunmuyor.</div>';
+          return;
+        }
+        list.forEach(slip => {
+          container.innerHTML += generateSlipHTML(slip, targetDay);
+        });
+      }
+    }
+
+    // Yazdırma fonksiyonları
+    function printActiveDay() {
+      renderPreview(activeDay);
+      setTimeout(() => { window.print(); }, 200);
+    }
+
+    function printAllWeek() {
+      renderPreview('ALL');
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => { renderPreview(activeDay); }, 500);
+      }, 200);
+    }
+
+    // Modal: PDF Yükle
+    function openPdfModal() { document.getElementById('pdfModal').style.display = 'flex'; }
+    function closePdfModal() { document.getElementById('pdfModal').style.display = 'none'; }
+
+    async function uploadPdf() {
+      const fileInput = document.getElementById('pdfFileInput');
+      if (!fileInput.files.length) {
+        alert('Lütfen bir PDF dosyası seçin!');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('pdf_file', fileInput.files[0]);
+
+      const btn = document.getElementById('btnUploadPdf');
+      btn.disabled = true;
+      btn.innerText = 'İşleniyor...';
+
+      try {
+        const res = await fetch('/api/upload_pdf', { method: 'POST', body: formData });
+        const result = await res.json();
+        if (result.success) {
+          alert('✓ Ders Programı Başarıyla Güncellendi!\n' + result.message);
+          closePdfModal();
+          location.reload();
+        } else {
+          alert('Hata: ' + result.error);
+        }
+      } catch (err) {
+        alert('Sunucu hatası: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Yükle ve Güncelle';
+      }
+    }
+
+    // Sınıf Ekleme Modalı (Kategorize)
+    function openAddClassModal() {
+      document.getElementById('addClassModalTitle').innerText = `${activeDay} Gününe Sınıf Ekle`;
+      currentProgFilter = 'ALL';
+      currentGradeFilter = 'ALL';
+      updateFilterPillsUI();
+      renderClassPickerGrid();
+      document.getElementById('addClassModal').style.display = 'flex';
+    }
+
+    function closeAddClassModal() {
+      document.getElementById('addClassModal').style.display = 'none';
+    }
+
+    function setProgFilter(val) {
+      currentProgFilter = val;
+      updateFilterPillsUI();
+      renderClassPickerGrid();
+    }
+
+    function setGradeFilter(val) {
+      currentGradeFilter = val;
+      updateFilterPillsUI();
+      renderClassPickerGrid();
+    }
+
+    function updateFilterPillsUI() {
+      document.querySelectorAll('#progFilterContainer .filter-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.includes(currentProgFilter) || (currentProgFilter === 'ALL' && btn.innerText === 'Tümü'));
+      });
+      document.querySelectorAll('#gradeFilterContainer .filter-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.includes(currentGradeFilter) || (currentGradeFilter === 'ALL' && btn.innerText === 'Tümü'));
+      });
+    }
+
+    function renderClassPickerGrid() {
+      const grid = document.getElementById('pickerGrid');
+      grid.innerHTML = '';
+
+      const filtered = appData.pdf_classes.filter(code => {
+        const { prog, grade } = analyzeClass(code);
+        if (currentProgFilter !== 'ALL' && prog !== currentProgFilter) return false;
+        if (currentGradeFilter !== 'ALL' && grade !== currentGradeFilter) return false;
+        return true;
+      });
+
+      document.getElementById('pickerCountLabel').innerText = `Toplam ${filtered.length} sınıf listeleniyor`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#64748b;">Bu kriterlere uygun sınıf bulunamadı.</div>';
+        return;
+      }
+
+      filtered.forEach(code => {
+        const { prog, grade } = analyzeClass(code);
+        const btn = document.createElement('button');
+        btn.className = 'picker-btn';
+        btn.innerHTML = `
+          <span>${code}</span>
+          <span class="badge-prog">${prog} • ${grade}. Snf</span>
+        `;
+        btn.onclick = () => addClassToActiveDay(code);
+        grid.appendChild(btn);
+      });
+    }
+
+    function addClassToActiveDay(code) {
+      const { fullTitle, dalTitle } = generateTitleAndDal(code);
+      const trDay = TR_DAY_MAP[activeDay];
+
+      let dersler = new Array(12).fill('');
+      let ogretmenler = new Array(12).fill('');
+
+      if (code && appData.pdf_data[code] && appData.pdf_data[code].gunler[trDay]) {
+        const slots = appData.pdf_data[code].gunler[trDay];
+        slots.forEach((s, idx) => {
+          if (idx < 12) {
+            dersler[idx] = s.ad || s.kod || '';
+            ogretmenler[idx] = s.ogretmen || '';
+          }
+        });
+      }
+
+      const newSlip = {
+        sinif: fullTitle,
+        dal: dalTitle,
+        mevcut: 'Sınıf Mevcudu: 18',
+        dersler: dersler,
+        ogretmenler: ogretmenler,
+        selected: true,
+        sinif_kodu: code
+      };
+
+      if (!appData.slips[activeDay]) appData.slips[activeDay] = [];
+      appData.slips[activeDay].push(newSlip);
+
+      closeAddClassModal();
+      renderDaysTabs();
+      renderCurrentDay();
+      autoSave();
+      alert(`✓ ${code} sınıfı ${activeDay} gününe başarıyla eklendi!`);
+    }
+
+    // Otomatik & Manuel Kaydetme (localStorage)
+    let saveTimeout = null;
+    function autoSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        saveConfiguration(false);
+      }, 300);
+    }
+
+    function saveConfiguration(showAlert = false) {
+      try {
+        localStorage.setItem('yoklama_slips', JSON.stringify(appData.slips));
+        if (showAlert) {
+          alert('✓ Seçimleriniz tarayıcınıza başarıyla kaydedildi!');
+        }
+      } catch (err) {
+        console.error('Kaydetme hatası:', err);
+        if (showAlert) {
+          alert('Kaydetme sırasında bir hata oluştu.');
+        }
+      }
+    }
+
+    // Sayfa Başına Dönme Fonksiyonları
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    window.addEventListener('scroll', () => {
+      const btn = document.getElementById('btnScrollTop');
+      if (btn) {
+        if (window.scrollY > 300) {
+          btn.classList.add('show');
+        } else {
+          btn.classList.remove('show');
+        }
+      }
+    });
+
+    window.onload = init;
+  </script>
+</body>
+</html>
