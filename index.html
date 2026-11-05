@@ -4,11 +4,10 @@
   <meta charset="UTF-8">
   <title>Şehit Yunus Çiçek MTAL - Haftalık Yoklama Fişi Otomasyonu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Yerel ve CDN Yedekli PDF.js -->
   <script src="pdf.min.js"></script>
   <script>
     if (typeof pdfjsLib === 'undefined') {
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\\/script>');
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>');
     }
   </script>
   <script src="data.js"></script>
@@ -22,6 +21,9 @@
       print-color-adjust: exact;
     }
 
+    /* =========================================================
+       EKRAN VE ARAYÜZ STILLERI
+       ========================================================= */
     @media screen {
       .top-navbar {
         background: linear-gradient(135deg, #1e3a8a, #0f172a);
@@ -124,7 +126,6 @@
       }
       .btn-outline:hover { background: #f1f5f9; border-color: #94a3b8; }
 
-      /* Days Tabs */
       .days-tabs {
         display: flex;
         gap: 8px;
@@ -164,7 +165,6 @@
         color: #1e40af;
       }
 
-      /* Slips Grid */
       .slips-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -210,12 +210,28 @@
         margin-top: 3px;
         line-height: 1.3;
       }
+      .slip-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .btn-action-slip {
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        transition: background 0.15s;
+      }
+      .btn-action-slip:hover { background: #e2e8f0; }
       .btn-del-slip {
         background: none;
         border: none;
         color: #94a3b8;
         cursor: pointer;
-        padding: 4px;
+        padding: 4px 6px;
         border-radius: 4px;
         font-size: 0.85rem;
       }
@@ -232,7 +248,6 @@
         gap: 30px;
       }
 
-      /* Filter Pill Buttons */
       .filter-pills {
         display: flex;
         flex-wrap: wrap;
@@ -294,7 +309,6 @@
         color: #64748b;
       }
 
-      /* Sayfanın Üstüne Dön Butonu */
       #btnScrollTop {
         position: fixed;
         bottom: 28px;
@@ -330,18 +344,20 @@
       }
     }
 
-    /* Print & A5 Physical Page Style */
+    /* =========================================================
+       A5 BASKI & SAYFA ÖLÇÜLERİ (EN AŞAĞIYA KADAR UZATILMIŞ)
+       ========================================================= */
     @page {
       size: A5 portrait;
-      margin: 6mm 8mm 6mm 8mm; /* Sağ ve sol kenar boşluğu 2mm artırıldı (yazıcı kesmelerine karşı) */
+      margin: 6mm 8mm 6mm 8mm;
     }
 
     .a5-page {
       background: white;
-      width: 148mm;
-      height: 204mm;
-      max-height: 205mm;
-      padding: 2mm 5mm 4mm 5mm; /* Sağ ve sol iç boşluk da 2mm içeri alındı */
+      width: 132mm;
+      height: 198mm;
+      max-height: 198mm;
+      padding: 0;
       margin: 0 auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       position: relative;
@@ -354,45 +370,52 @@
     }
 
     @media print {
-      body { background: white !important; }
+      html, body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
       .no-print { display: none !important; }
-      .main-container { margin: 0; padding: 0; max-width: none; }
-      .preview-wrapper { background: none; padding: 0; gap: 0; }
+      .main-container { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+      .preview-wrapper { background: none !important; padding: 0 !important; margin: 0 !important; gap: 0 !important; }
       .a5-page {
         box-shadow: none !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
         width: 100% !important;
-        height: 100% !important;
-        max-height: none !important;
+        height: 198mm !important;
+        max-height: 198mm !important;
         page-break-after: always !important;
         break-after: page !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
       }
     }
 
-    /* Orijinal Excel Fişi Tasarımı */
     .slip-header {
       text-align: center;
-      margin-bottom: 2mm;
+      margin-bottom: 1.5mm;
     }
     .slip-header .gov-tc {
-      font-size: 9.5pt;
+      font-size: 9pt;
       font-weight: bold;
-      line-height: 1.15;
+      line-height: 1.1;
     }
     .slip-header .gov-valilik {
-      font-size: 9.5pt;
+      font-size: 9pt;
       font-weight: bold;
-      line-height: 1.15;
+      line-height: 1.1;
     }
     .slip-header .school-name {
-      font-size: 8pt;
+      font-size: 7.8pt;
       font-weight: bold;
       line-height: 1.15;
     }
     .slip-header .doc-title {
-      font-size: 10pt;
+      font-size: 9.5pt;
       font-weight: bold;
-      margin-top: 1.5mm;
+      margin-top: 1mm;
       letter-spacing: 0.5px;
     }
 
@@ -400,21 +423,20 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      font-size: 7.5pt;
+      font-size: 7.2pt;
       font-weight: bold;
       margin-bottom: 1.5mm;
       line-height: 1.25;
     }
     .subinfo-left {
       flex: 1;
-      padding-right: 4mm;
+      padding-right: 3mm;
     }
     .subinfo-right {
       text-align: right;
       white-space: nowrap;
     }
 
-    /* 12 Ders Tablosu */
     .slip-table {
       width: 100%;
       border-collapse: collapse;
@@ -438,7 +460,7 @@
     }
 
     .row-lesson-names td {
-      height: 12.5mm;
+      height: 13mm;
       font-size: 5.5pt;
       font-weight: bold;
       line-height: 1.1;
@@ -446,18 +468,16 @@
       vertical-align: middle;
     }
 
-    /* Yoklama Alanı (Ders ve Öğretmen Arasındaki Boş Alan) */
     .row-absence-cell {
-      height: 100mm;
+      height: 118mm !important;
       vertical-align: top;
       background: #fff;
     }
 
-    /* Öğretmen İsim / İmza Satırı (Aşağıdan yukarıya, alta ve sağa yanaşık) */
     .row-teachers td {
-      height: 28mm;
-      max-height: 28mm;
-      padding: 1.5mm 1mm 1.5mm 1mm;
+      height: 33mm !important;
+      max-height: 33mm !important;
+      padding: 1mm 1px;
       background: #fafafa;
       text-align: right;
       vertical-align: bottom;
@@ -478,13 +498,13 @@
       display: inline-block;
       white-space: normal;
       word-break: break-word;
-      font-size: 5.5pt;
+      font-size: 5.8pt;
       font-weight: bold;
       letter-spacing: 0.1px;
       line-height: 1.05;
-      max-height: 25mm;
-      max-width: 10.5mm;
-      text-align: left; /* Ters çevrildiği için kutunun altına yaslanır */
+      max-height: 31mm;
+      max-width: 11.5mm;
+      text-align: left;
       margin: 0;
     }
 
@@ -492,8 +512,9 @@
       text-align: center;
       font-size: 7.5pt;
       font-weight: bold;
-      margin-top: 2.5mm;
-      margin-bottom: 1mm;
+      margin-top: 2mm;
+      margin-bottom: 0mm;
+      text-decoration: underline;
     }
 
     .modal-backdrop {
@@ -528,10 +549,12 @@
       <p>Haftalık A5 Günlük Öğrenci Yoklama Fişleri Yönetim ve Yazdırma Sistemi</p>
     </div>
     <div class="btn-group">
-      <button class="btn btn-outline" onclick="openTeacherReplaceModal()" title="Bir öğretmenin adını arayıp başka bir isimle topluca veya tekil değiştirin">👥 Öğretmen Değiştir / Ara</button>
+      <button class="btn btn-outline" onclick="openClassEditFromNavbar()" title="Sınıf başlığı ve mevcut düzenle">✏️ Sınıf Başlığı & Mevcut</button>
+      <button class="btn btn-outline" onclick="openTeacherReplaceModal()" title="Öğretmen adını topluca veya tekil değiştirin">👥 Öğretmen Değiştir / Ara</button>
+      <button class="btn btn-outline" onclick="openLessonReplaceModal()" title="Ders adını topluca veya tekil değiştirin">📚 Ders Adı Değiştir / Ara</button>
       <button class="btn btn-outline" onclick="openPdfModal()" title="Yeni Dönem PDF Ders Programını Tarayıcıda Güncelle">📂 Ders Programı PDF Yükle</button>
       <button class="btn btn-outline" onclick="resetToDefaults()" title="Seçimleri fabrika ayarlarına döndür">🔄 Varsayılana Sıfırla</button>
-      <button class="btn btn-primary" onclick="printActiveDay()">🖨️ Bu Günü Yazdır (A5)</button>
+      <button class="btn btn-primary" onclick="openPrintModal()" title="Yazdırılacak sınıfları seçerek yazdır">🖨️ Bu Günü Yazdır (A5)</button>
       <button class="btn btn-success" onclick="printAllWeek()">📑 Tüm Haftayı Yazdır (Tek Seferde)</button>
     </div>
   </header>
@@ -546,7 +569,7 @@
       <div class="form-group">
         <label>⚡ Kalıcı Hafıza</label>
         <p style="font-size:0.8rem; color:#64748b; line-height:1.4;">
-          Yaptığınız tüm sınıf seçimleri ve hafta tarihi tarayıcınızda ve sunucuda otomatik kaydedilir.
+          Yaptığınız tüm sınıf seçimleri ve hafta tarihi tarayıcınızda otomatik kaydedilir.
         </p>
       </div>
       <div class="form-group" style="text-align: right;">
@@ -577,10 +600,86 @@
   <!-- Fiş Önizleme Alanı -->
   <div class="preview-wrapper" id="previewContainer"></div>
 
-  <!-- Sayfanın Başına Dön Oku -->
-  <button id="btnScrollTop" class="no-print" onclick="scrollToTop()" title="Sayfanın Başına Dön">
-    ↑
-  </button>
+  <!-- Sayfanın Başına Dön Butonu -->
+  <button id="btnScrollTop" class="no-print" onclick="scrollToTop()" title="Sayfanın Başına Dön">↑</button>
+
+  <!-- Yazdırma & Sayfa Seçim Modalı -->
+  <div id="printModal" class="modal-backdrop no-print" style="display:none;">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 id="printModalTitle">🖨️ Yazdırma & Sınıf Seçimi</h3>
+        <button class="btn-del-slip" onclick="closePrintModal()" style="font-size:1.2rem;">✕</button>
+      </div>
+      <p style="font-size:0.83rem; color:#64748b; margin-bottom:14px; line-height:1.4;">
+        Yazdırmak istediğiniz sınıfları işaretleyin veya yanlarındaki <b>"Yazdır"</b> butonuna basarak doğrudan sadece o sınıfı yazdırın.
+      </p>
+
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <button class="btn btn-outline" style="font-size:0.8rem; padding:4px 10px;" onclick="toggleAllPrintPages(true)">Tüm Sınıfları İşaretle</button>
+        <button class="btn btn-outline" style="font-size:0.8rem; padding:4px 10px;" onclick="toggleAllPrintPages(false)">İşaretleri Temizle</button>
+      </div>
+
+      <div id="printPagesList" style="max-height:320px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:10px; background:#f8fafc; display:flex; flex-direction:column; gap:6px;">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <span id="printSelectedCountInfo" style="font-size:0.82rem; color:#2563eb; font-weight:600;"></span>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-outline" onclick="closePrintModal()">Kapat</button>
+          <button class="btn btn-primary" onclick="executeSelectedPagesPrint()">🖨️ Seçilenleri Yazdır</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sınıf Başlığı ve Mevcut Düzenleme Modalı -->
+  <div id="editClassModal" class="modal-backdrop no-print" style="display:none;">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3>✏️ Sınıf Başlığı & Mevcut Düzenle</h3>
+        <button class="btn-del-slip" onclick="closeEditClassModal()" style="font-size:1.2rem;">✕</button>
+      </div>
+      <p style="font-size:0.83rem; color:#64748b; margin-bottom:14px; line-height:1.4;">
+        Yoklama fişi üzerinde yer alan <b>Sınıf Başlığı</b>, <b>Dal Adı</b> ve <b>Sınıf Mevcudu</b> alanlarını dilediğiniz gibi güncelleyebilirsiniz.
+      </p>
+
+      <input type="hidden" id="editSlipIndex">
+      <input type="hidden" id="editSlipOriginalSinif">
+      <input type="hidden" id="editSlipOriginalCode">
+
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>Sınıf Başlığı</label>
+        <input type="text" id="editClassTitle" class="form-control" placeholder="Örn: Sınıf: AMP - 11. Sınıf / E Şubesi ELEKTRİK-ELEKTRONİK TEKNOLOJİSİ ALANI">
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>Dalı / Alanı</label>
+        <input type="text" id="editClassDal" class="form-control" placeholder="Örn: Dalı: Elektrik Tesisatları ve Dağıtımı">
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Sınıf Mevcudu</label>
+        <input type="text" id="editClassMevcut" class="form-control" placeholder="Örn: Sınıf Mevcudu: 18 veya sadece 18">
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px;">
+        <label>Uygulama Kapsamı</label>
+        <div style="display:flex; gap:16px; font-size:0.88rem; color:#334155; margin-top:6px; flex-wrap:wrap;">
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
+            <input type="radio" name="editClassScope" value="ACTIVE_DAY" checked> Sadece Bu Günün Fişinde (<span id="editScopeDayText"></span>)
+          </label>
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
+            <input type="radio" name="editClassScope" value="ALL_WEEK"> Bu Sınıfın Tüm Haftadaki Fişlerinde
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeEditClassModal()">İptal</button>
+        <button class="btn btn-primary" onclick="saveClassDetails()">💾 Değişiklikleri Kaydet</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Öğretmen İsmi Arama ve Değiştirme Modalı -->
   <div id="teacherReplaceModal" class="modal-backdrop no-print" style="display:none;">
@@ -590,7 +689,7 @@
         <button class="btn-del-slip" onclick="closeTeacherReplaceModal()" style="font-size:1.2rem;">✕</button>
       </div>
       <p style="font-size:0.83rem; color:#64748b; margin-bottom:14px; line-height:1.4;">
-        Raporlu, izinli veya görevi değişen öğretmenin adını arayarak yerine girecek yeni öğretmenin adını yazın. Fişlerdeki isimler anında güncellenecektir.
+        Raporlu, izinli veya görevi değişen öğretmenin adını arayarak yerine girecek yeni öğretmenin adını yazın.
       </p>
 
       <div class="form-group" style="margin-bottom:14px;">
@@ -611,7 +710,7 @@
         <label>Değişiklik Kapsamı</label>
         <div style="display:flex; gap:16px; font-size:0.88rem; color:#334155; margin-top:6px;">
           <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
-            <input type="radio" name="replaceScope" value="ACTIVE_DAY" checked> Sadece Bu Gün (${activeDay})
+            <input type="radio" name="replaceScope" value="ACTIVE_DAY" checked> Sadece Bu Gün (<span id="scopeActiveDayText"></span>)
           </label>
           <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
             <input type="radio" name="replaceScope" value="ALL_WEEK"> Tüm Hafta (5 Gün)
@@ -619,17 +718,58 @@
         </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-        <span id="replaceCountResult" style="font-size:0.8rem; color:#059669; font-weight:600;"></span>
-        <div style="display:flex; gap:10px;">
-          <button class="btn btn-outline" onclick="closeTeacherReplaceModal()">İptal</button>
-          <button class="btn btn-primary" onclick="applyTeacherReplace()">İsimleri Değiştir</button>
-        </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeTeacherReplaceModal()">İptal</button>
+        <button class="btn btn-primary" onclick="applyTeacherReplace()">İsimleri Değiştir</button>
       </div>
     </div>
   </div>
 
-  <!-- PDF Yükleme Modalı (Doğrudan Tarayıcıda Çalışır) -->
+  <!-- Ders Adı Arama ve Değiştirme Modalı -->
+  <div id="lessonReplaceModal" class="modal-backdrop no-print" style="display:none;">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3>📚 Ders Adı Ara & Değiştir</h3>
+        <button class="btn-del-slip" onclick="closeLessonReplaceModal()" style="font-size:1.2rem;">✕</button>
+      </div>
+      <p style="font-size:0.83rem; color:#64748b; margin-bottom:14px; line-height:1.4;">
+        Fişlerdeki bir dersin adını arayarak topluca başka bir ders adıyla güncelleyebilirsiniz.
+      </p>
+
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Değiştirilecek Ders (Mevcut Ad)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="inputSearchLesson" list="lessonsDatalist" class="form-control" placeholder="Ders adı arayın veya seçin..." oninput="onSearchLessonInput()">
+          <datalist id="lessonsDatalist"></datalist>
+        </div>
+        <div id="lessonFoundInfo" style="font-size:0.75rem; color:#2563eb; margin-top:4px; font-weight:600;"></div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Yeni Ders Adı (Yerine Geçecek İsim)</label>
+        <textarea id="inputNewLessonName" class="form-control" rows="2" placeholder="Örn: MATEMATİK veya satır başı yaparak"></textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px;">
+        <label>Değişiklik Kapsamı</label>
+        <div style="display:flex; gap:16px; font-size:0.88rem; color:#334155; margin-top:6px;">
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
+            <input type="radio" name="replaceLessonScope" value="ACTIVE_DAY" checked> Sadece Bu Gün (<span id="scopeActiveLessonDayText"></span>)
+          </label>
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
+            <input type="radio" name="replaceLessonScope" value="ALL_WEEK"> Tüm Hafta (5 Gün)
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeLessonReplaceModal()">İptal</button>
+        <button class="btn btn-primary" onclick="applyLessonReplace()">Ders Adını Değiştir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF Yükleme Modalı -->
   <div id="pdfModal" class="modal-backdrop no-print" style="display:none;">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -637,8 +777,7 @@
         <button class="btn-del-slip" onclick="closePdfModal()" style="font-size:1.2rem;">✕</button>
       </div>
       <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px; line-height:1.4;">
-        Okul idaresinden gelen güncel <b>SINIFLAR DERS PROGRAMI.pdf</b> dosyasını seçin.<br>
-        Herhangi bir sunucuya göndermeden, <b>doğrudan tarayıcınızın içinde</b> tüm sınıflar, dersler ve öğretmenler okunup anında güncellenecektir.
+        Okul idaresinden gelen güncel <b>SINIFLAR DERS PROGRAMI.pdf</b> dosyasını seçin.
       </p>
       <input type="file" id="pdfFileInput" accept=".pdf" class="form-control" style="margin-bottom:16px;">
       <div id="pdfProgressArea" style="display:none; margin-bottom:16px;">
@@ -654,18 +793,13 @@
     </div>
   </div>
 
-  <!-- Gelişmiş Sınıf Ekleme Modalı (Kategorize: AMP / ATP ve 9, 10, 11, 12) -->
+  <!-- Sınıf Ekleme Modalı -->
   <div id="addClassModal" class="modal-backdrop no-print" style="display:none;">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 id="addClassModalTitle">Güne Sınıf Ekle</h3>
         <button class="btn-del-slip" onclick="closeAddClassModal()" style="font-size:1.2rem;">✕</button>
       </div>
-      <p style="font-size:0.82rem; color:#64748b; margin-bottom:14px;">
-        Aşağıdan <b>Program Türü</b> (AMP / ATP) ve <b>Sınıf Seviyesi</b> (9, 10, 11, 12) seçerek istediğiniz sınıfa tıklayın:
-      </p>
-
-      <!-- Program Filtresi -->
       <div class="filter-pills" id="progFilterContainer">
         <span style="font-size:0.8rem; font-weight:700; color:#475569; margin-right:4px;">Program:</span>
         <button class="filter-pill active" onclick="setProgFilter('ALL')">Tümü</button>
@@ -673,7 +807,6 @@
         <button class="filter-pill" onclick="setProgFilter('ATP')">ATP (Teknik)</button>
       </div>
 
-      <!-- Seviye Filtresi -->
       <div class="filter-pills" id="gradeFilterContainer">
         <span style="font-size:0.8rem; font-weight:700; color:#475569; margin-right:4px;">Seviye:</span>
         <button class="filter-pill active" onclick="setGradeFilter('ALL')">Tümü</button>
@@ -683,7 +816,6 @@
         <button class="filter-pill" onclick="setGradeFilter('12')">12. Sınıf</button>
       </div>
 
-      <!-- Sınıf Seçim Butonları -->
       <div class="classes-picker-grid" id="pickerGrid"></div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
@@ -697,7 +829,7 @@
     const DAYS = ['PAZARTESİ', 'SALI', 'ÇARŞAMBA', 'PERŞEMBE', 'CUMA'];
     const DAY_OFFSET = { 'PAZARTESİ': 0, 'SALI': 1, 'ÇARŞAMBA': 2, 'PERŞEMBE': 3, 'CUMA': 4 };
     const TR_DAY_MAP = { 'PAZARTESİ': 'Pazartesi', 'SALI': 'Salı', 'ÇARŞAMBA': 'Çarşamba', 'PERŞEMBE': 'Perşembe', 'CUMA': 'Cuma' };
-    const ROMAN_NUMS = ['I.', 'II.', 'III.', 'IV.', 'V.', 'VI.', 'VII.', 'VIII.', 'IX.', 'X.', 'XI.', 'XII.'];
+    const ROMAN_NUMS = ['I.', 'II.', 'III.', 'IV.', 'V.', 'VI.', 'VII.', 'VIII.', 'IX.', 'X.', 'XI.'];
 
     let appData = {
       slips: {},
@@ -710,7 +842,6 @@
     let currentProgFilter = 'ALL';
     let currentGradeFilter = 'ALL';
 
-    // Alan - Dal Eşleştirmeleri
     const ALAN_MAP = {
       'A': { alan: 'MAKİNE VE TASARIM TEKNOLOJİSİ ALANI', dal: 'Makine Bakım Onarım' },
       'E': { alan: 'ELEKTRİK-ELEKTRONİK TEKNOLOJİSİ ALANI', dal: 'Elektrik Tesisatları ve Dağıtımı' },
@@ -720,7 +851,6 @@
       'C': { alan: 'METAL TEKNOLOJİSİ ALANI', dal: 'Metal Doğrama' },
     };
 
-    // Sınıf Kodu Analiz Fonksiyonu: Program (AMP/ATP) ve Seviye (9,10,11,12)
     function analyzeClass(code) {
       const u = code.toUpperCase();
       let prog = 'AMP';
@@ -752,11 +882,9 @@
       return { fullTitle, dalTitle, sube: cleanSube };
     }
 
-    // İçinde bulunulan haftanın Pazartesi gününü yerel saatle hesapla (YYYY-MM-DD)
     function getCurrentMonday() {
       const now = new Date();
-      const day = now.getDay(); // 0: Pazar, 1: Pazartesi, ..., 6: Cumartesi
-      // Pazartesiye olan gün farkı (Pazar günü için -6, diğer günler 1 - day)
+      const day = now.getDay();
       const diffToMonday = day === 0 ? -6 : 1 - day;
       const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
       
@@ -767,11 +895,9 @@
     }
 
     async function init() {
-      // Her zaman güncel haftanın Pazartesi gününü varsayılan olarak seç
       document.getElementById('weekDate').value = getCurrentMonday();
 
       try {
-        // 1. PDF veri setini yükle (Önce localStorage kontrol et, yoksa data.js)
         const customPdfData = localStorage.getItem('yoklama_pdf_data');
         if (customPdfData) {
           try {
@@ -779,26 +905,33 @@
             appData.pdf_classes = Object.keys(appData.pdf_data);
           } catch(e) {
             appData.pdf_data = typeof PDF_CLASSES_DATA !== 'undefined' ? PDF_CLASSES_DATA : {};
-            appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : [];
+            appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : Object.keys(appData.pdf_data);
           }
         } else {
           appData.pdf_data = typeof PDF_CLASSES_DATA !== 'undefined' ? PDF_CLASSES_DATA : {};
-          appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : [];
+          appData.pdf_classes = typeof PDF_CLASSES_LIST !== 'undefined' ? PDF_CLASSES_LIST : Object.keys(appData.pdf_data);
         }
 
-        // 2. Kullanıcının yerel hafızasındaki (localStorage) seçimleri yükle
         const savedSlips = localStorage.getItem('yoklama_slips');
+        let loaded = false;
         if (savedSlips) {
           try {
-            appData.slips = JSON.parse(savedSlips);
+            const parsed = JSON.parse(savedSlips);
+            if (parsed && Object.keys(parsed).length > 0 && Object.values(parsed).some(arr => arr && arr.length > 0)) {
+              appData.slips = parsed;
+              loaded = true;
+            }
           } catch(e) {
-            console.warn("Kayıtlı fiş verisi okunamadı, varsayılan yükleniyor:", e);
-            appData.slips = JSON.parse(JSON.stringify(DEFAULT_SLIPS));
+            console.warn("Kayıtlı fiş okunamadı:", e);
           }
-        } else if (typeof DEFAULT_SLIPS !== 'undefined') {
-          appData.slips = JSON.parse(JSON.stringify(DEFAULT_SLIPS));
-        } else {
-          appData.slips = {};
+        }
+        
+        if (!loaded) {
+          if (typeof DEFAULT_SLIPS !== 'undefined' && Object.keys(DEFAULT_SLIPS).length > 0) {
+            appData.slips = JSON.parse(JSON.stringify(DEFAULT_SLIPS));
+          } else {
+            appData.slips = {};
+          }
         }
 
         renderDaysTabs();
@@ -841,6 +974,11 @@
 
     function renderCurrentDay() {
       document.getElementById('currentDayTitle').innerText = `${activeDay} Günü Fiş Listesi`;
+      const scopeDaySpan = document.getElementById('scopeActiveDayText');
+      if (scopeDaySpan) scopeDaySpan.innerText = activeDay;
+      const scopeLessonDaySpan = document.getElementById('scopeActiveLessonDayText');
+      if (scopeLessonDaySpan) scopeLessonDaySpan.innerText = activeDay;
+
       const grid = document.getElementById('slipsGrid');
       grid.innerHTML = '';
 
@@ -863,7 +1001,11 @@
               <div class="slip-item-title" title="${item.sinif}">${item.sinif}</div>
               <div class="slip-item-sub">${item.dal || ''} • <b>${item.mevcut || 'Mevcut: -'}</b></div>
             </div>
-            <button class="btn-del-slip" title="Bu fişi kaldır" onclick="removeSlip(${index}); event.stopPropagation();">🗑️</button>
+            <div class="slip-item-actions">
+              <button class="btn-action-slip" title="Sınıf başlığı ve mevcut düzenle" onclick="openEditClassModal(${index}); event.stopPropagation();">✏️</button>
+              <button class="btn-action-slip" title="Sadece bu sınıfı yazdır" onclick="printSingleSlip(${index}); event.stopPropagation();">🖨️</button>
+              <button class="btn-del-slip" title="Bu fişi kaldır" onclick="removeSlip(${index}); event.stopPropagation();">🗑️</button>
+            </div>
           `;
           card.onclick = (e) => {
             if (e.target.tagName !== 'INPUT' && !e.target.closest('button')) {
@@ -921,7 +1063,6 @@
       autoSave();
     }
 
-    // A5 Fiş HTML Üretici
     function generateSlipHTML(slipData, dayName) {
       const dateText = getFormattedDateForDay(dayName);
       
@@ -929,15 +1070,13 @@
       let lessonNamesTd = '';
       let teachersTd = '';
 
-      for (let c = 0; c < 12; c++) {
+      for (let c = 0; c < 11; c++) {
         const num = ROMAN_NUMS[c] || (c + 1) + '.';
-        const lesson = (slipData.dersler && slipData.dersler[c]) ? slipData.dersler[c].replace(/\n/g, '<br>') : '';
+        const lesson = (slipData.dersler && slipData.dersler[c]) ? slipData.dersler[c].split('\\n').join('<br>').split(String.fromCharCode(10)).join('<br>') : '';
         const teacherRaw = (slipData.ogretmenler && slipData.ogretmenler[c]) ? slipData.ogretmenler[c].trim() : '';
         let teacher = '';
         if (teacherRaw) {
-          // İki öğretmen varsa (virgülle ayrılmışsa) alt satıra geçsin
-          let formattedName = teacherRaw.replace(/,\s*/g, '<br>');
-          // Çok uzun unvan parantezleri varsa alt satıra geçsin
+          let formattedName = teacherRaw.split(',').join('<br>');
           formattedName = formattedName.replace(/\(([^)]+)\)/g, '<br>($1)');
           
           teacher = `
@@ -945,8 +1084,6 @@
               <span class="teacher-rotated-text">${formattedName}</span>
             </div>
           `;
-        } else {
-          teacher = ``;
         }
 
         lessonNumsTh += `<th>${num}<br>Ders</th>`;
@@ -954,9 +1091,8 @@
         teachersTd += `<td>${teacher}</td>`;
       }
 
-      // Tek blok yoklama sütunları (Ders ile Öğretmen arasında yatay çizgi yok, dikey sütunlar korunur)
       let absenceColumns = '';
-      for (let c = 0; c < 12; c++) {
+      for (let c = 0; c < 11; c++) {
         absenceColumns += `<td class="row-absence-cell"></td>`;
       }
 
@@ -1023,10 +1159,117 @@
       }
     }
 
-    // Yazdırma fonksiyonları
-    function printActiveDay() {
+    /* =========================================================
+       YAZDIRMA VE SAYFA SEÇİMİ MODAL FONKSİYONLARI (DÜZELTİLDİ)
+       ========================================================= */
+    function openPrintModal() {
+      const modal = document.getElementById('printModal');
+      const container = document.getElementById('printPagesList');
+      container.innerHTML = '';
+
+      const list = appData.slips[activeDay] || [];
+      if (list.length === 0) {
+        alert('Bu gün için eklenmiş sınıf bulunmuyor.');
+        return;
+      }
+
+      document.getElementById('printModalTitle').innerText = `🖨️ ${activeDay} - Yazdırılacak Sınıfları Seç`;
+
+      list.forEach((item, idx) => {
+        const isChecked = (item.selected !== false);
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.gap = '8px';
+        row.style.padding = '8px 10px';
+        row.style.background = 'white';
+        row.style.border = '1px solid #cbd5e1';
+        row.style.borderRadius = '6px';
+        row.style.fontSize = '0.85rem';
+        row.innerHTML = `
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; flex:1; min-width:0; margin:0;">
+            <input type="checkbox" class="chk-print-page" ${isChecked ? 'checked' : ''} value="${idx}" onchange="updatePrintSelectedCount()">
+            <span style="font-weight:700; color:#2563eb; width:60px; flex-shrink:0;">#${idx + 1}</span>
+            <span style="font-weight:600; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.sinif}</span>
+          </label>
+          <button class="btn btn-outline" style="font-size:0.75rem; padding:3px 8px; flex-shrink:0;" onclick="printSingleSlip(${idx});">Tek Yazdır</button>
+        `;
+        container.appendChild(row);
+      });
+
+      updatePrintSelectedCount();
+      modal.style.display = 'flex';
+    }
+
+    function closePrintModal() {
+      document.getElementById('printModal').style.display = 'none';
       renderPreview(activeDay);
-      setTimeout(() => { window.print(); }, 200);
+    }
+
+    function toggleAllPrintPages(status) {
+      document.querySelectorAll('.chk-print-page').forEach(chk => chk.checked = status);
+      updatePrintSelectedCount();
+    }
+
+    function updatePrintSelectedCount() {
+      const total = document.querySelectorAll('.chk-print-page').length;
+      const checked = document.querySelectorAll('.chk-print-page:checked').length;
+      document.getElementById('printSelectedCountInfo').innerText = `Seçilen: ${checked} / ${total} sınıf`;
+    }
+
+    function executeSelectedPagesPrint() {
+      const checkedBoxes = Array.from(document.querySelectorAll('.chk-print-page:checked'));
+      if (checkedBoxes.length === 0) {
+        alert('Lütfen yazdırılacak en az bir sınıf işaretleyin.');
+        return;
+      }
+
+      const selectedIndices = checkedBoxes.map(cb => parseInt(cb.value));
+      const list = appData.slips[activeDay] || [];
+
+      // SADECE seçilen sınıfları önizleme alanına yaz
+      const preview = document.getElementById('previewContainer');
+      preview.innerHTML = '';
+      selectedIndices.forEach(idx => {
+        if (list[idx]) {
+          preview.innerHTML += generateSlipHTML(list[idx], activeDay);
+        }
+      });
+
+      // Modalı doğrudan kapat, renderPreview çağırma!
+      document.getElementById('printModal').style.display = 'none';
+
+      // Yazdırma işlemi bittikten sonra tam önizlemeyi geri getir
+      const restorePreview = () => {
+        renderPreview(activeDay);
+      };
+      window.addEventListener('afterprint', restorePreview, { once: true });
+
+      setTimeout(() => {
+        window.print();
+        setTimeout(restorePreview, 1000);
+      }, 300);
+    }
+
+    function printSingleSlip(index) {
+      const list = appData.slips[activeDay] || [];
+      if (!list[index]) return;
+
+      const preview = document.getElementById('previewContainer');
+      preview.innerHTML = generateSlipHTML(list[index], activeDay);
+
+      document.getElementById('printModal').style.display = 'none';
+
+      const restorePreview = () => {
+        renderPreview(activeDay);
+      };
+      window.addEventListener('afterprint', restorePreview, { once: true });
+
+      setTimeout(() => {
+        window.print();
+        setTimeout(restorePreview, 1000);
+      }, 300);
     }
 
     function printAllWeek() {
@@ -1034,18 +1277,101 @@
       setTimeout(() => {
         window.print();
         setTimeout(() => { renderPreview(activeDay); }, 500);
-      }, 200);
+      }, 300);
     }
 
-    // Öğretmen İsmi Arama & Değiştirme Fonksiyonları
+    /* =========================================================
+       SINIF BAŞLIĞI VE MEVCUDU DÜZENLEME MODÜLÜ
+       ========================================================= */
+    function openClassEditFromNavbar() {
+      const list = appData.slips[activeDay] || [];
+      if (list.length === 0) {
+        alert('Bu gün için eklenmiş sınıf bulunmuyor.');
+        return;
+      }
+      openEditClassModal(0);
+    }
+
+    function openEditClassModal(index) {
+      const list = appData.slips[activeDay] || [];
+      const item = list[index];
+      if (!item) return;
+
+      document.getElementById('editSlipIndex').value = index;
+      document.getElementById('editSlipOriginalSinif').value = item.sinif || '';
+      document.getElementById('editSlipOriginalCode').value = item.sinif_kodu || '';
+      document.getElementById('editClassTitle').value = item.sinif || '';
+      document.getElementById('editClassDal').value = item.dal || '';
+      document.getElementById('editClassMevcut').value = item.mevcut || '';
+      document.getElementById('editScopeDayText').innerText = activeDay;
+
+      document.getElementById('editClassModal').style.display = 'flex';
+    }
+
+    function closeEditClassModal() {
+      document.getElementById('editClassModal').style.display = 'none';
+    }
+
+    function saveClassDetails() {
+      const index = parseInt(document.getElementById('editSlipIndex').value);
+      const origSinif = document.getElementById('editSlipOriginalSinif').value;
+      const origCode = document.getElementById('editSlipOriginalCode').value;
+
+      let title = document.getElementById('editClassTitle').value.trim();
+      let dal = document.getElementById('editClassDal').value.trim();
+      let mevcut = document.getElementById('editClassMevcut').value.trim();
+
+      if (!title) {
+        alert('Lütfen sınıf başlığı alanını boş bırakmayın.');
+        return;
+      }
+
+      if (mevcut && !mevcut.toLowerCase().includes('mevcut')) {
+        mevcut = 'Sınıf Mevcudu: ' + mevcut;
+      }
+
+      const scopeRadio = document.querySelector('input[name="editClassScope"]:checked');
+      const scope = scopeRadio ? scopeRadio.value : 'ACTIVE_DAY';
+
+      let updatedCount = 0;
+      if (scope === 'ALL_WEEK') {
+        DAYS.forEach(day => {
+          (appData.slips[day] || []).forEach(slip => {
+            if (slip.sinif === origSinif || (origCode && slip.sinif_kodu === origCode)) {
+              slip.sinif = title;
+              slip.dal = dal;
+              slip.mevcut = mevcut;
+              updatedCount++;
+            }
+          });
+        });
+      } else {
+        const list = appData.slips[activeDay] || [];
+        if (list[index]) {
+          list[index].sinif = title;
+          list[index].dal = dal;
+          list[index].mevcut = mevcut;
+          updatedCount++;
+        }
+      }
+
+      closeEditClassModal();
+      renderDaysTabs();
+      renderCurrentDay();
+      autoSave();
+
+      alert(`✓ Başarılı! ${updatedCount} adet fişin başlık ve mevcut bilgileri güncellendi.`);
+    }
+
+    /* =========================================================
+       ÖĞRETMEN DEĞİŞTİR / ARA MODÜLÜ
+       ========================================================= */
     function getAllTeachersInSlips() {
       const teachers = new Set();
       Object.values(appData.slips || {}).forEach(daySlips => {
         (daySlips || []).forEach(slip => {
           (slip.ogretmenler || []).forEach(t => {
-            if (t && t.trim()) {
-              teachers.add(t.trim());
-            }
+            if (t && t.trim()) teachers.add(t.trim());
           });
         });
       });
@@ -1064,10 +1390,10 @@
         datalist.appendChild(opt);
       });
 
+      document.getElementById('scopeActiveDayText').innerText = activeDay;
       document.getElementById('inputSearchTeacher').value = '';
       document.getElementById('inputNewTeacherName').value = '';
       document.getElementById('teacherFoundInfo').innerText = `Toplam ${allTeachers.length} aktif öğretmen kayıtlı.`;
-      document.getElementById('replaceCountResult').innerText = '';
 
       modal.style.display = 'flex';
     }
@@ -1118,9 +1444,7 @@
           if (slip.ogretmenler && Array.isArray(slip.ogretmenler)) {
             for (let i = 0; i < slip.ogretmenler.length; i++) {
               const currentT = slip.ogretmenler[i] || '';
-              // Tam eşleşme veya içeriyorsa değiştir
               if (currentT.toLowerCase().includes(oldTeacher.toLowerCase())) {
-                // Regex case-insensitive değiştirme
                 const re = new RegExp(oldTeacher, 'gi');
                 slip.ogretmenler[i] = currentT.replace(re, newTeacher);
                 replacedCount++;
@@ -1135,7 +1459,6 @@
         return;
       }
 
-      // UI'yi güncelle ve otomatik kaydet
       renderDaysTabs();
       renderCurrentDay();
       autoSave();
@@ -1144,7 +1467,113 @@
       closeTeacherReplaceModal();
     }
 
-    // Modal: PDF Yükle
+    /* =========================================================
+       DERS ADI DEĞİŞTİR / ARA MODÜLÜ
+       ========================================================= */
+    function getAllLessonsInSlips() {
+      const lessons = new Set();
+      Object.values(appData.slips || {}).forEach(daySlips => {
+        (daySlips || []).forEach(slip => {
+          (slip.dersler || []).forEach(d => {
+            if (d && d.trim()) lessons.add(d.trim().split('\\n').join(' ').split(String.fromCharCode(10)).join(' '));
+          });
+        });
+      });
+      return Array.from(lessons).sort((a, b) => a.localeCompare(b, 'tr'));
+    }
+
+    function openLessonReplaceModal() {
+      const modal = document.getElementById('lessonReplaceModal');
+      const datalist = document.getElementById('lessonsDatalist');
+      datalist.innerHTML = '';
+
+      const allLessons = getAllLessonsInSlips();
+      allLessons.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l;
+        datalist.appendChild(opt);
+      });
+
+      document.getElementById('scopeActiveLessonDayText').innerText = activeDay;
+      document.getElementById('inputSearchLesson').value = '';
+      document.getElementById('inputNewLessonName').value = '';
+      document.getElementById('lessonFoundInfo').innerText = `Toplam ${allLessons.length} farklı ders kayıtlı.`;
+
+      modal.style.display = 'flex';
+    }
+
+    function closeLessonReplaceModal() {
+      document.getElementById('lessonReplaceModal').style.display = 'none';
+    }
+
+    function onSearchLessonInput() {
+      const query = document.getElementById('inputSearchLesson').value.trim().toLowerCase();
+      if (!query) {
+        document.getElementById('lessonFoundInfo').innerText = '';
+        return;
+      }
+
+      let count = 0;
+      Object.values(appData.slips || {}).forEach(daySlips => {
+        (daySlips || []).forEach(slip => {
+          (slip.dersler || []).forEach(d => {
+            if (d && d.split('\\n').join(' ').split(String.fromCharCode(10)).join(' ').toLowerCase().includes(query)) count++;
+          });
+        });
+      });
+
+      document.getElementById('lessonFoundInfo').innerText = `Bu ders fişlerde ${count} saatte geçiyor.`;
+    }
+
+    function applyLessonReplace() {
+      const oldLesson = document.getElementById('inputSearchLesson').value.trim();
+      const newLesson = document.getElementById('inputNewLessonName').value.trim();
+      const scopeRadio = document.querySelector('input[name="replaceLessonScope"]:checked');
+      const scope = scopeRadio ? scopeRadio.value : 'ACTIVE_DAY';
+
+      if (!oldLesson) {
+        alert('Lütfen değiştirilecek ders adını girin veya listeden seçin!');
+        return;
+      }
+      if (!newLesson) {
+        alert('Lütfen yeni ders adını yazın!');
+        return;
+      }
+
+      let replacedCount = 0;
+      const targetDays = scope === 'ALL_WEEK' ? DAYS : [activeDay];
+
+      targetDays.forEach(day => {
+        (appData.slips[day] || []).forEach(slip => {
+          if (slip.dersler && Array.isArray(slip.dersler)) {
+            for (let i = 0; i < slip.dersler.length; i++) {
+              const currentL = slip.dersler[i] || '';
+              const normalizedCurrent = currentL.split('\\n').join(' ').split(String.fromCharCode(10)).join(' ');
+              if (normalizedCurrent.toLowerCase().includes(oldLesson.toLowerCase())) {
+                slip.dersler[i] = newLesson;
+                replacedCount++;
+              }
+            }
+          }
+        });
+      });
+
+      if (replacedCount === 0) {
+        alert(`"${oldLesson}" dersi seçilen kapsamda (${scope === 'ALL_WEEK' ? 'Tüm Hafta' : activeDay}) bulunamadı.`);
+        return;
+      }
+
+      renderDaysTabs();
+      renderCurrentDay();
+      autoSave();
+
+      alert(`✓ Başarılı! Toplam ${replacedCount} dersteki isim güncellendi.`);
+      closeLessonReplaceModal();
+    }
+
+    /* =========================================================
+       PDF OKUMA & YÜKLEME MODÜLÜ
+       ========================================================= */
     function openPdfModal() { 
       document.getElementById('pdfModal').style.display = 'flex';
       document.getElementById('pdfProgressArea').style.display = 'none';
@@ -1154,7 +1583,6 @@
     }
     function closePdfModal() { document.getElementById('pdfModal').style.display = 'none'; }
 
-    // Tamamen Tarayıcı Üzerinde (Client-Side) PDF Parser
     async function uploadPdfClientSide() {
       const fileInput = document.getElementById('pdfFileInput');
       if (!fileInput.files.length) {
@@ -1163,7 +1591,7 @@
       }
 
       if (typeof pdfjsLib === 'undefined') {
-        alert('PDF okuma kütüphanesi yüklenemedi. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.');
+        alert('PDF okuma kütüphanesi yüklenemedi. Sayfayı yenileyip tekrar deneyin.');
         return;
       }
 
@@ -1195,14 +1623,12 @@
           const textContent = await page.getTextContent();
           const viewport = page.getViewport({ scale: 1.0 });
 
-          // Her bir span'ın (x, y) koordinatlarını al (PDF coordinate: 0 at bottom)
           const items = textContent.items.map(it => {
             const tx = it.transform[4];
-            const ty = viewport.height - it.transform[5]; // Üstten alta dönüştür
+            const ty = viewport.height - it.transform[5];
             return { x: tx, y: ty, text: it.str.trim() };
           }).filter(it => it.text.length > 0);
 
-          // 1. Sınıf Kodunu Bul
           let classCode = null;
           for (let i = 0; i < items.length; i++) {
             if (items[i].text === ':' && i > 0 && items[i-1].text.includes('Sınıf')) {
@@ -1217,9 +1643,7 @@
           }
           if (!classCode) classCode = `Sinif_${pageNum}`;
 
-          // 2. Alt Tablodaki Ders Kodlarını & Öğretmenleri (Legend) Çöz
           const legend = {};
-          // y > 380 olan satırlar legend tablosudur
           const legendRows = {};
           items.filter(it => it.y > 380).forEach(it => {
             const ry = Math.round(it.y / 12) * 12;
@@ -1229,7 +1653,6 @@
 
           Object.values(legendRows).forEach(rowItems => {
             rowItems.sort((a, b) => a.x - b.x);
-            // x ~ 78 ders kodu, x ~ 125 ders adı, x ~ 308 öğretmen adı
             const kodItem = rowItems.find(it => it.x >= 70 && it.x <= 110 && !/^\d+$/.test(it.text));
             const adItems = rowItems.filter(it => it.x >= 120 && it.x <= 235);
             const ogrItems = rowItems.filter(it => it.x >= 300);
@@ -1242,7 +1665,6 @@
             }
           });
 
-          // 3. Günlere göre ders saatlerini çıkar (Pazartesi, Salı, Çarşamba, Perşembe, Cuma)
           const daysMap = {
             'Pazartesi': 138,
             'Salı': 176,
@@ -1253,7 +1675,6 @@
           const gunler = {};
 
           Object.entries(daysMap).forEach(([gunName, targetY]) => {
-            // targetY'ye yakın olan ders kodu satırını bul (targetY - 14 civarı)
             const rowY = targetY - 14;
             const dersKodSpans = items.filter(it => Math.abs(it.y - rowY) <= 8 && it.x > 95);
             const ogrSpans = items.filter(it => Math.abs(it.y - (rowY + 12)) <= 8 && it.x > 95);
@@ -1282,26 +1703,27 @@
           };
         }
 
-        // Başarılı! Tarayıcı hafızasına ve uygulamaya kaydet
         appData.pdf_data = newPdfData;
         appData.pdf_classes = Object.keys(newPdfData);
         localStorage.setItem('yoklama_pdf_data', JSON.stringify(newPdfData));
 
-        alert(`✓ Başarılı! ${Object.keys(newPdfData).length} sınıfın ders programı doğrudan tarayıcınızda okundu ve güncellendi.`);
+        alert(`✓ Başarılı! ${Object.keys(newPdfData).length} sınıfın ders programı okundu ve güncellendi.`);
         closePdfModal();
         renderDaysTabs();
         renderCurrentDay();
 
       } catch (err) {
         console.error("PDF okuma hatası:", err);
-        alert('PDF dosyası okunurken hata oluştu: ' + err.message);
+        alert('PDF okunurken hata oluştu: ' + err.message);
       } finally {
         btn.disabled = false;
         btn.innerText = "PDF'i Tara ve Güncelle";
       }
     }
 
-    // Sınıf Ekleme Modalı (Kategorize)
+    /* =========================================================
+       SINIF EKLEME MODAL FONKSİYONLARI
+       ========================================================= */
     function openAddClassModal() {
       document.getElementById('addClassModalTitle').innerText = `${activeDay} Gününe Sınıf Ekle`;
       currentProgFilter = 'ALL';
@@ -1371,13 +1793,13 @@
       const { fullTitle, dalTitle } = generateTitleAndDal(code);
       const trDay = TR_DAY_MAP[activeDay];
 
-      let dersler = new Array(12).fill('');
-      let ogretmenler = new Array(12).fill('');
+      let dersler = new Array(11).fill('');
+      let ogretmenler = new Array(11).fill('');
 
       if (code && appData.pdf_data[code] && appData.pdf_data[code].gunler[trDay]) {
         const slots = appData.pdf_data[code].gunler[trDay];
         slots.forEach((s, idx) => {
-          if (idx < 12) {
+          if (idx < 11) {
             dersler[idx] = s.ad || s.kod || '';
             ogretmenler[idx] = s.ogretmen || '';
           }
@@ -1401,10 +1823,9 @@
       renderDaysTabs();
       renderCurrentDay();
       autoSave();
-      alert(`✓ ${code} sınıfı ${activeDay} gününe başarıyla eklendi!`);
+      alert(`✓ ${code} sınıfı ${activeDay} gününe eklendi!`);
     }
 
-    // Otomatik & Manuel Kaydetme (localStorage)
     let saveTimeout = null;
     function autoSave() {
       clearTimeout(saveTimeout);
@@ -1421,28 +1842,18 @@
         }
       } catch (err) {
         console.error('Kaydetme hatası:', err);
-        if (showAlert) {
-          alert('Kaydetme sırasında bir hata oluştu.');
-        }
       }
     }
 
-    // Sayfa Başına Dönme Fonksiyonları
     function scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     window.addEventListener('scroll', () => {
       const btn = document.getElementById('btnScrollTop');
       if (btn) {
-        if (window.scrollY > 300) {
-          btn.classList.add('show');
-        } else {
-          btn.classList.remove('show');
-        }
+        if (window.scrollY > 300) btn.classList.add('show');
+        else btn.classList.remove('show');
       }
     });
 
