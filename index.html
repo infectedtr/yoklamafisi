@@ -528,6 +528,7 @@
       <p>Haftalık A5 Günlük Öğrenci Yoklama Fişleri Yönetim ve Yazdırma Sistemi</p>
     </div>
     <div class="btn-group">
+      <button class="btn btn-outline" onclick="openTeacherReplaceModal()" title="Bir öğretmenin adını arayıp başka bir isimle topluca veya tekil değiştirin">👥 Öğretmen Değiştir / Ara</button>
       <button class="btn btn-outline" onclick="openPdfModal()" title="Yeni Dönem PDF Ders Programını Tarayıcıda Güncelle">📂 Ders Programı PDF Yükle</button>
       <button class="btn btn-outline" onclick="resetToDefaults()" title="Seçimleri fabrika ayarlarına döndür">🔄 Varsayılana Sıfırla</button>
       <button class="btn btn-primary" onclick="printActiveDay()">🖨️ Bu Günü Yazdır (A5)</button>
@@ -580,6 +581,53 @@
   <button id="btnScrollTop" class="no-print" onclick="scrollToTop()" title="Sayfanın Başına Dön">
     ↑
   </button>
+
+  <!-- Öğretmen İsmi Arama ve Değiştirme Modalı -->
+  <div id="teacherReplaceModal" class="modal-backdrop no-print" style="display:none;">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3>👥 Öğretmen İsmi Ara & Değiştir</h3>
+        <button class="btn-del-slip" onclick="closeTeacherReplaceModal()" style="font-size:1.2rem;">✕</button>
+      </div>
+      <p style="font-size:0.83rem; color:#64748b; margin-bottom:14px; line-height:1.4;">
+        Raporlu, izinli veya görevi değişen öğretmenin adını arayarak yerine girecek yeni öğretmenin adını yazın. Fişlerdeki isimler anında güncellenecektir.
+      </p>
+
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Değiştirilecek Öğretmen (Mevcut İsim)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="inputSearchTeacher" list="teachersDatalist" class="form-control" placeholder="Öğretmen adı arayın veya seçin..." oninput="onSearchTeacherInput()">
+          <datalist id="teachersDatalist"></datalist>
+        </div>
+        <div id="teacherFoundInfo" style="font-size:0.75rem; color:#2563eb; margin-top:4px; font-weight:600;"></div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Yeni Öğretmen Adı (Yerine Geçecek İsim)</label>
+        <input type="text" id="inputNewTeacherName" class="form-control" placeholder="Örn: YENİ ÖĞRETMEN ADI">
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px;">
+        <label>Değişiklik Kapsamı</label>
+        <div style="display:flex; gap:16px; font-size:0.88rem; color:#334155; margin-top:6px;">
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
+            <input type="radio" name="replaceScope" value="ACTIVE_DAY" checked> Sadece Bu Gün (${activeDay})
+          </label>
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:normal; text-transform:none;">
+            <input type="radio" name="replaceScope" value="ALL_WEEK"> Tüm Hafta (5 Gün)
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <span id="replaceCountResult" style="font-size:0.8rem; color:#059669; font-weight:600;"></span>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-outline" onclick="closeTeacherReplaceModal()">İptal</button>
+          <button class="btn btn-primary" onclick="applyTeacherReplace()">İsimleri Değiştir</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- PDF Yükleme Modalı (Doğrudan Tarayıcıda Çalışır) -->
   <div id="pdfModal" class="modal-backdrop no-print" style="display:none;">
@@ -987,6 +1035,113 @@
         window.print();
         setTimeout(() => { renderPreview(activeDay); }, 500);
       }, 200);
+    }
+
+    // Öğretmen İsmi Arama & Değiştirme Fonksiyonları
+    function getAllTeachersInSlips() {
+      const teachers = new Set();
+      Object.values(appData.slips || {}).forEach(daySlips => {
+        (daySlips || []).forEach(slip => {
+          (slip.ogretmenler || []).forEach(t => {
+            if (t && t.trim()) {
+              teachers.add(t.trim());
+            }
+          });
+        });
+      });
+      return Array.from(teachers).sort((a, b) => a.localeCompare(b, 'tr'));
+    }
+
+    function openTeacherReplaceModal() {
+      const modal = document.getElementById('teacherReplaceModal');
+      const datalist = document.getElementById('teachersDatalist');
+      datalist.innerHTML = '';
+
+      const allTeachers = getAllTeachersInSlips();
+      allTeachers.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        datalist.appendChild(opt);
+      });
+
+      document.getElementById('inputSearchTeacher').value = '';
+      document.getElementById('inputNewTeacherName').value = '';
+      document.getElementById('teacherFoundInfo').innerText = `Toplam ${allTeachers.length} aktif öğretmen kayıtlı.`;
+      document.getElementById('replaceCountResult').innerText = '';
+
+      modal.style.display = 'flex';
+    }
+
+    function closeTeacherReplaceModal() {
+      document.getElementById('teacherReplaceModal').style.display = 'none';
+    }
+
+    function onSearchTeacherInput() {
+      const query = document.getElementById('inputSearchTeacher').value.trim().toLowerCase();
+      if (!query) {
+        document.getElementById('teacherFoundInfo').innerText = '';
+        return;
+      }
+
+      let count = 0;
+      Object.values(appData.slips || {}).forEach(daySlips => {
+        (daySlips || []).forEach(slip => {
+          (slip.ogretmenler || []).forEach(t => {
+            if (t && t.toLowerCase().includes(query)) count++;
+          });
+        });
+      });
+
+      document.getElementById('teacherFoundInfo').innerText = `Bu arama fişlerde ${count} derste geçiyor.`;
+    }
+
+    function applyTeacherReplace() {
+      const oldTeacher = document.getElementById('inputSearchTeacher').value.trim();
+      const newTeacher = document.getElementById('inputNewTeacherName').value.trim();
+      const scopeRadio = document.querySelector('input[name="replaceScope"]:checked');
+      const scope = scopeRadio ? scopeRadio.value : 'ACTIVE_DAY';
+
+      if (!oldTeacher) {
+        alert('Lütfen değiştirilecek öğretmenin adını girin veya listeden seçin!');
+        return;
+      }
+      if (!newTeacher) {
+        alert('Lütfen yerine geçecek yeni öğretmenin adını yazın!');
+        return;
+      }
+
+      let replacedCount = 0;
+      const targetDays = scope === 'ALL_WEEK' ? DAYS : [activeDay];
+
+      targetDays.forEach(day => {
+        (appData.slips[day] || []).forEach(slip => {
+          if (slip.ogretmenler && Array.isArray(slip.ogretmenler)) {
+            for (let i = 0; i < slip.ogretmenler.length; i++) {
+              const currentT = slip.ogretmenler[i] || '';
+              // Tam eşleşme veya içeriyorsa değiştir
+              if (currentT.toLowerCase().includes(oldTeacher.toLowerCase())) {
+                // Regex case-insensitive değiştirme
+                const re = new RegExp(oldTeacher, 'gi');
+                slip.ogretmenler[i] = currentT.replace(re, newTeacher);
+                replacedCount++;
+              }
+            }
+          }
+        });
+      });
+
+      if (replacedCount === 0) {
+        alert(`"${oldTeacher}" isimli öğretmen seçilen kapsamda (${scope === 'ALL_WEEK' ? 'Tüm Hafta' : activeDay}) bulunamadı.`);
+        return;
+      }
+
+      // UI'yi güncelle ve otomatik kaydet
+      renderDaysTabs();
+      renderCurrentDay();
+      autoSave();
+
+      alert(`✓ Başarılı! Toplam ${replacedCount} dersteki öğretmen ismi "${newTeacher}" olarak güncellendi.`);
+      closeTeacherReplaceModal();
     }
 
     // Modal: PDF Yükle
